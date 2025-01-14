@@ -1,0 +1,14 @@
+{
+	"name": "binhvan-root",
+	"private": true,
+	"workspaces": ["packages/*"],
+	"scripts": {
+		"lint": "biome check",
+		"lint:fix": "biome check --unsafe --write"
+	},
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest",
+		"oxc-transform": "^0.46.0"
+	}
+}

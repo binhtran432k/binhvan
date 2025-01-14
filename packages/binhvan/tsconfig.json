@@ -1,0 +1,11 @@
+{
+	"extends": ["../../tsconfig.share.jsonc"],
+	"compilerOptions": {
+		"rootDir": "src",
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["src/*"]
+		}
+	},
+	"include": ["src", "package.json"]
+}

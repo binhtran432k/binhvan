@@ -1,0 +1,22 @@
+{
+	"name": "binhvan",
+	"version": "0.0.0",
+	"module": "src/index.ts",
+	"type": "module",
+	"exports": {
+		".": "./dist/index.js",
+		"./layouts": "./dist/layouts.js",
+		"./components": "./dist/components.js"
+	},
+	"scripts": {
+		"gen": "bun scripts/gen.ts",
+		"types": "bun scripts/types.ts"
+	},
+	"peerDependencies": {
+		"mini-van-plate": "^0.6.1"
+	},
+	"devDependencies": {
+		"@types/bun": "*",
+		"oxc-transform": "*"
+	}
+}

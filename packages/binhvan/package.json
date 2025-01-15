@@ -3,6 +3,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"files": ["dist"],
+	"repository": {
+		"url": "https://github.com/binhtran432k/binhvan.git",
+		"type": "git"
+	},
 	"exports": {
 		".": "./dist/index.js",
 		"./layouts": "./dist/layouts.js",

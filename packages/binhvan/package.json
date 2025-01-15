@@ -1,8 +1,8 @@
 {
 	"name": "binhvan",
 	"version": "0.0.0",
-	"module": "src/index.ts",
 	"type": "module",
+	"files": ["dist"],
 	"exports": {
 		".": "./dist/index.js",
 		"./layouts": "./dist/layouts.js",

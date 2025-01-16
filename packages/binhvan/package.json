@@ -13,8 +13,7 @@
 		"./components": "./dist/components.js"
 	},
 	"scripts": {
-		"gen": "bun scripts/gen.ts",
-		"types": "bun scripts/types.ts"
+		"gen": "bun scripts/gen.ts"
 	},
 	"peerDependencies": {
 		"mini-van-plate": "^0.6.1"

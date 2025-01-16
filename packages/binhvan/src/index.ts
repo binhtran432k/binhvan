@@ -69,7 +69,9 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 	await Bun.$`rm -rf ${o.cacheDir} ${o.outDir}`;
 	await Bun.$`mkdir -p ${o.cacheDir} ${o.outDir}`;
 	await buildPages(o);
-	await Bun.$`cp ${o.publicDir}/* ${o.outDir}`;
+	if (await Bun.file(o.publicDir).exists()) {
+		await Bun.$`cp -rn ${o.publicDir}/. ${o.outDir}`.nothrow();
+	}
 
 	if (cmdArgs.rebuildOnly) {
 		return;

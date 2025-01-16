@@ -28,7 +28,6 @@ export interface BinhVanOpts {
 	pageModules: PageModule[];
 	/** @default Bun.argv */
 	args: string[];
-	scriptPath?: string;
 	minify?: boolean;
 	external?: string[];
 }
@@ -42,13 +41,6 @@ const DEFAULT_OPTS: BinhVanOpts = {
 	pageModules: [],
 };
 
-interface CmdArgs {
-	dev?: boolean;
-	rebuildOnly?: boolean;
-	preview?: boolean;
-	port?: string;
-}
-
 export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 	const o: BinhVanOpts = {
 		...DEFAULT_OPTS,
@@ -56,7 +48,10 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 	};
 	registerEnv({ van });
 
-	const { values: cmdArgs } = parseArgs({
+	const {
+		values: cmdArgs,
+		positionals: [, scriptPath],
+	} = parseArgs({
 		args: o.args,
 		options: {
 			dev: { type: "boolean" },
@@ -77,23 +72,23 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 		return;
 	}
 
-	if (o.scriptPath && cmdArgs.dev) {
-		watchAndRebuild(o);
+	if (cmdArgs.dev) {
+		watchAndRebuild(o, scriptPath);
 	}
 
 	if (cmdArgs.dev || cmdArgs.preview) {
-		serveServer(o, cmdArgs);
+		serveServer(o, cmdArgs.port);
 	}
 }
 
-function watchAndRebuild(o: BinhVanOpts) {
+function watchAndRebuild(o: BinhVanOpts, scriptPath: string) {
 	let time: Timer | undefined;
 	function watchChange(src: string) {
 		watch(src, { recursive: true }, (_, fname) => {
 			clearTimeout(time);
 			time = setTimeout(async () => {
-				await Bun.$`bun ${o.scriptPath} --rebuildOnly`;
-				console.log(`Updated ${fname}`);
+				await Bun.$`bun ${scriptPath} --rebuildOnly`;
+				console.log(`Detected changing ${fname}`);
 			}, 500);
 		});
 	}
@@ -103,7 +98,7 @@ function watchAndRebuild(o: BinhVanOpts) {
 	watchChange(o.publicDir);
 }
 
-function serveServer(o: BinhVanOpts, cmdArgs: CmdArgs) {
+function serveServer(o: BinhVanOpts, port?: string) {
 	async function getFile(pathname: string): Promise<BunFile | null> {
 		const trimedPath = pathname.replace(/^\/|\/$/g, "");
 
@@ -120,7 +115,7 @@ function serveServer(o: BinhVanOpts, cmdArgs: CmdArgs) {
 	}
 
 	const server = Bun.serve({
-		port: cmdArgs.port ?? 5000,
+		port: port ?? 5000,
 		async fetch(req) {
 			const url = new URL(req.url);
 

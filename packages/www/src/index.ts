@@ -7,7 +7,6 @@ async function main() {
 		args: Bun.argv,
 		watchDirs: ["src"],
 		external: ["*.svg"],
-		scriptPath: import.meta.path,
 		pageModules: await Promise.all(pageImports.map((x) => import(x))),
 	});
 }

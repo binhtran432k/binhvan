@@ -3,7 +3,7 @@
 	"version": "0.0.2",
 	"type": "module",
 	"files": ["dist"],
-  "keywords": ["ssg", "van", "bun"],
+	"keywords": ["ssg", "van", "bun"],
 	"repository": {
 		"url": "https://github.com/binhtran432k/binhvan.git",
 		"type": "git"

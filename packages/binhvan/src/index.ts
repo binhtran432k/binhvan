@@ -1,4 +1,5 @@
 import { watch } from "node:fs";
+import { readdir } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import type { BunFile } from "bun";
 import { registerEnv } from "mini-van-plate/shared";
@@ -41,6 +42,15 @@ const DEFAULT_OPTS: BinhVanOpts = {
 	pageModules: [],
 };
 
+async function checkDirExists(path: string) {
+	try {
+		await readdir(path);
+		return true;
+	} catch (err) {
+		return false;
+	}
+}
+
 export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 	const o: BinhVanOpts = {
 		...DEFAULT_OPTS,
@@ -69,7 +79,7 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 	await Bun.$`rm -rf ${o.cacheDir} ${o.outDir}`;
 	await Bun.$`mkdir -p ${o.cacheDir} ${o.outDir}`;
 	await buildPages(o);
-	if (await Bun.file(o.publicDir).exists()) {
+	if (await checkDirExists(o.publicDir)) {
 		await Bun.$`cp -rn ${o.publicDir}/. ${o.outDir}`.nothrow();
 	}
 
@@ -88,19 +98,20 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 
 function watchAndRebuild(o: BinhVanOpts, scriptPath: string) {
 	let time: Timer | undefined;
-	function watchChange(src: string) {
-		watch(src, { recursive: true }, (_, fname) => {
-			clearTimeout(time);
-			time = setTimeout(async () => {
-				await Bun.$`bun ${scriptPath} --rebuildOnly`;
-				console.log(`Detected changing ${fname}`);
-			}, 500);
-		});
+	async function watchChange(src: string) {
+		if (await checkDirExists(src)) {
+			watch(src, { recursive: true }, (_, fname) => {
+				clearTimeout(time);
+				time = setTimeout(async () => {
+					await Bun.$`bun ${scriptPath} --rebuildOnly`;
+					console.log(`Detected changing ${fname}`);
+				}, 500);
+			});
+		}
 	}
-	for (const dir of o.watchDirs) {
+	for (const dir of o.watchDirs.concat(o.publicDir)) {
 		watchChange(dir);
 	}
-	watchChange(o.publicDir);
 }
 
 function serveServer(o: BinhVanOpts, port?: string) {

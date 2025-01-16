@@ -4,7 +4,6 @@ const pageImports: string[] = ["~/pages/PMain/PMain.ts"];
 
 async function main() {
 	await mainBinhVan({
-		args: Bun.argv,
 		watchDirs: ["src"],
 		external: ["*.svg"],
 		pageModules: await Promise.all(pageImports.map((x) => import(x))),

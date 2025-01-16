@@ -9,7 +9,7 @@ const PMain: BinhVanPageFn = (van) => {
 				van,
 				{
 					headProps: {
-            base: "/",
+						base: import.meta.env.BASE_URL,
 						favicon: { type: "image/svg", href: "favicon.svg" },
 					},
 				},

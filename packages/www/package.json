@@ -1,14 +1,14 @@
 {
 	"name": "binhvan-www",
-  "private": true,
+	"private": true,
 	"module": "src/index.ts",
 	"type": "module",
 	"scripts": {
-    "gen": "bun src/index.ts",
-    "dev": "bun src/index.ts --dev"
+		"gen": "bun src/index.ts",
+		"dev": "bun src/index.ts --dev"
 	},
 	"dependencies": {
-    "binhvan": "*",
+		"binhvan": "*",
 		"mini-van-plate": "^0.6.1"
 	},
 	"devDependencies": {

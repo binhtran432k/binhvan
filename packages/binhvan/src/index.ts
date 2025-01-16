@@ -58,10 +58,13 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 			rebuildOnly: { type: "boolean" },
 			preview: { type: "boolean" },
 			port: { type: "string" },
+			base: { type: "string" },
 		},
 		allowPositionals: true,
 		strict: true,
 	});
+
+	import.meta.env.BASE_URL = cmdArgs.base;
 
 	await Bun.$`rm -rf ${o.cacheDir} ${o.outDir}`;
 	await Bun.$`mkdir -p ${o.cacheDir} ${o.outDir}`;

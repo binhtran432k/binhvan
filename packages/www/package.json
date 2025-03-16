@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"gen": "bun src/index.ts",
-		"dev": "bun src/index.ts --dev"
+		"dev": "bun src/index.ts --dev",
+		"preview": "bun src/index.ts --preview"
 	},
 	"dependencies": {
 		"binhvan": "*",

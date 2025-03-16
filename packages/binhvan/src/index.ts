@@ -65,7 +65,6 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 		args: o.args,
 		options: {
 			dev: { type: "boolean" },
-			rebuildOnly: { type: "boolean" },
 			preview: { type: "boolean" },
 			port: { type: "string" },
 			base: { type: "string" },
@@ -83,16 +82,11 @@ export async function main(opts: Partial<BinhVanOpts>): Promise<void> {
 		await Bun.$`cp -rn ${o.publicDir}/. ${o.outDir}`.nothrow();
 	}
 
-	if (cmdArgs.rebuildOnly) {
-		return;
-	}
-
 	if (cmdArgs.dev) {
 		watchAndRebuild(o, scriptPath);
-	}
-
-	if (cmdArgs.dev || cmdArgs.preview) {
-		serveServer(o, cmdArgs.port);
+		serveServer(o, cmdArgs.port ?? 5000);
+	} else if (cmdArgs.preview) {
+		serveServer(o, cmdArgs.port ?? 4000);
 	}
 }
 
@@ -103,7 +97,7 @@ function watchAndRebuild(o: BinhVanOpts, scriptPath: string) {
 			watch(src, { recursive: true }, (_, fname) => {
 				clearTimeout(time);
 				time = setTimeout(async () => {
-					await Bun.$`bun ${scriptPath} --rebuildOnly`;
+					await Bun.$`bun ${scriptPath}`;
 					console.log(`Detected changing ${fname}`);
 				}, 500);
 			});
@@ -114,7 +108,7 @@ function watchAndRebuild(o: BinhVanOpts, scriptPath: string) {
 	}
 }
 
-function serveServer(o: BinhVanOpts, port?: string) {
+function serveServer(o: BinhVanOpts, port: string | number) {
 	async function getFile(pathname: string): Promise<BunFile | null> {
 		const trimedPath = pathname.replace(/^\/|\/$/g, "");
 
@@ -131,7 +125,7 @@ function serveServer(o: BinhVanOpts, port?: string) {
 	}
 
 	const server = Bun.serve({
-		port: port ?? 5000,
+		port,
 		async fetch(req) {
 			const url = new URL(req.url);
 
@@ -146,28 +140,25 @@ function serveServer(o: BinhVanOpts, port?: string) {
 }
 
 async function buildPages(o: BinhVanOpts) {
-	const writedUrls: URL[] = [];
-	for (const pageMod of o.pageModules) {
-		const pages = pageMod.default(van);
-
-		for (const page of pages) {
-			const writeUrl = new URL(
-				page.pathname,
-				Bun.pathToFileURL(`${o.cacheDir}/`),
-			);
-			await Bun.write(writeUrl, page.content);
-			writedUrls.push(writeUrl);
-		}
-	}
+	const entrypoints = await Promise.all(
+		o.pageModules
+			.flatMap((pageMod) => pageMod.default(van))
+			.map(async (page) => {
+				const writeUrl = new URL(
+					page.pathname,
+					Bun.pathToFileURL(`${o.cacheDir}/`),
+				);
+				await Bun.write(writeUrl, page.content);
+				return Bun.fileURLToPath(writeUrl);
+			}),
+	);
 
 	const result = await Bun.build({
-		entrypoints: writedUrls.map((url) => Bun.fileURLToPath(url)),
+		entrypoints,
 		root: o.cacheDir,
 		outdir: o.outDir,
 		minify: o.minify,
 		external: o.external,
-		html: true,
-		experimentalCss: true,
 		splitting: true,
 	});
 

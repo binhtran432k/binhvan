@@ -1,6 +1,6 @@
 {
 	"name": "binhvan",
-	"version": "0.0.3",
+	"version": "0.1.0",
 	"type": "module",
 	"files": ["dist"],
 	"keywords": ["ssg", "van", "bun"],
@@ -17,7 +17,7 @@
 		"gen": "bun scripts/gen.ts"
 	},
 	"peerDependencies": {
-		"mini-van-plate": "^0.6.1"
+		"mini-van-plate": "^0.6.3"
 	},
 	"devDependencies": {
 		"@types/bun": "*",
